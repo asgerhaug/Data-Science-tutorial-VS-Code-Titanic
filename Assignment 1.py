@@ -35,10 +35,10 @@ from sklearn.linear_model import LinearRegression
 
 # Align the data frames
 
-pipeline = Pipeline([
+'''pipeline = Pipeline([
     # This is your job - make a pipeline.
     # This is also where you add your model
-])
+])'''
 
 # Fit the pipeline
 
