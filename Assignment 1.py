@@ -25,20 +25,39 @@ wind  = client.query(
 
 gen_df = get_df(generation)
 wind_df = get_df(wind)
-
+from pylab import rcParams
+rcParams['figure.figsize'] = 5, 10
 
 ####################################################
 ## Preprocess the data
 
+from sklearn.compose import ColumnTransformer
 from sklearn.pipeline import Pipeline
-from sklearn.linear_model import LinearRegression
+from sklearn.impute import SimpleImputer
+from sklearn.preprocessing import MinMaxScaler
+from sklearn.preprocessing import OneHotEncoder # changing the string data to categorical data like changing Direction to numbers
+
+# Preprocessing for numerical data
+numerical_transformer = SimpleImputer(strategy='constant')
+
+# Preprocessing for categorical data
+categorical_transformer = Pipeline(steps=[
+    ('imputer', SimpleImputer(strategy='most_frequent')),
+    ('onehot', OneHotEncoder(handle_unknown='ignore'))
+])
 
 # Align the data frames
+preprocessor = ColumnTransformer(
+    transformers=[
+        ('num', numerical_transformer, numerical_cols),
+        ('cat', categorical_transformer, categorical_cols),
+        ("Scaler", MinMaxScaler(),["Speed", "Direction"]),
+        ("Drop time", "drop",["Time"]),
+    ],
+    remainder = "passthrough")
 
-'''pipeline = Pipeline([
-    # This is your job - make a pipeline.
-    # This is also where you add your model
-])'''
+
+
 
 # Fit the pipeline
 
@@ -54,6 +73,7 @@ for_df = get_df(forecasts)
 
 # Limit to only the newest source time
 newest_source_time = for_df["Source_time"].max()
+
 newest_forecasts = for_df.loc[for_df["Source_time"] == newest_source_time].copy()
 
 # Preprocess the forecasts and do predictions in one fell swoop 
